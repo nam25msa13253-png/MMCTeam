@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ thống Quản trị MMC - Toàn diện</title>
+    <!-- Font & Icon -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-light: #eff6ff;
+            --bg-body: #f8fafc;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --danger: #ef4444;
+            --success: #10b981;
+            --border: #e2e8f0;
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-main); display: flex; min-height: 100vh; overflow-x: hidden; }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            width: 280px;
+            background: white;
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+        }
+
+        .sidebar-brand {
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .brand-logo-img { width: 42px; height: 42px; object-fit: contain; border-radius: 10px; }
+        .brand-name { font-size: 1.4rem; font-weight: 800; color: var(--primary); }
+
+        .nav-section { padding: 0 16px; margin-bottom: 15px; }
+        .nav-section-title {
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 8px;
+            padding-left: 12px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            text-decoration: none;
+            color: var(--text-main);
+            font-weight: 500;
+            border-radius: 10px;
+            transition: 0.2s;
+            margin-bottom: 2px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .nav-item i { width: 20px; font-size: 0.95rem; color: var(--text-muted); text-align: center; }
+        .nav-item:hover { background: var(--primary-light); color: var(--primary); }
+        .nav-item.active { background: var(--primary-light); color: var(--primary); font-weight: 600; border-right: 4px solid var(--primary); border-radius: 10px 0 0 10px; }
+
+        .badge-count {
+            background: var(--danger);
+            color: white;
+            font-size: 0.65rem;
+            padding: 2px 6px;
+            border-radius: 20px;
+            margin-left: auto;
+        }
+
+        .nav-logout {
+            margin-top: auto;
+            border-top: 1px solid var(--border);
+            padding: 20px 16px;
+            color: var(--danger);
+            text-decoration: none;
+            display: flex;
+            align-items: center; gap: 12px; font-weight: 600;
+        }
+
+        /* --- CONTENT AREA --- */
+        .main-content { margin-left: 280px; flex: 1; padding: 32px; width: calc(100% - 280px); }
+
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+
+        .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px; }
+        .stat-box { background: white; padding: 20px; border-radius: 16px; box-shadow: var(--shadow); border: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+        .stat-icon { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+
+        /* --- DATA CARD --- */
+        .data-card { background: white; border-radius: 16px; box-shadow: var(--shadow); border: 1px solid var(--border); overflow: hidden; }
+        .data-header { padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 15px; background: #fff; }
+        
+        .search-input { padding: 9px 16px; border: 1px solid var(--border); border-radius: 8px; width: 320px; outline: none; transition: 0.3s; font-size: 0.85rem; }
+        .btn-add { background: var(--primary); color: white; padding: 9px 18px; border-radius: 8px; font-weight: 600; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.85rem; }
+
+        .table-responsive { overflow-x: auto; width: 100%; }
+        table { width: 100%; border-collapse: collapse; min-width: 1000px; }
+        th { background: #f9fafb; padding: 12px 24px; text-align: left; font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; border-bottom: 1px solid var(--border); }
+        td { padding: 14px 24px; border-top: 1px solid var(--border); font-size: 0.85rem; vertical-align: middle; }
+
+        .status-pill { padding: 4px 10px; border-radius: 50px; font-size: 0.7rem; font-weight: 700; text-transform: capitalize; display: inline-block; }
+        .status-hoan_thanh { background: #dcfce7; color: #166534; }
+        .status-dang_giat { background: #eff6ff; color: #1e40af; }
+        .status-da_huy { background: #fee2e2; color: #991b1b; }
+
+        .action-btns { display: flex; gap: 6px; }
+        .btn-op { width: 30px; height: 30px; border-radius: 6px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; background: white; transition: 0.2s; font-size: 0.8rem; }
+        .btn-op:hover { color: var(--primary); border-color: var(--primary); background: var(--primary-light); }
+
+        /* --- MODAL --- */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000; }
+        .modal-box { background: white; padding: 32px; border-radius: 20px; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .form-item label { display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 6px; color: var(--text-muted); }
+        .form-item input, .form-item select, .form-item textarea { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 10px; outline: none; font-size: 0.9rem; }
+
+        @media (max-width: 1024px) {
+            .sidebar { width: 80px; }
+            .sidebar span, .nav-section-title, .brand-name { display: none; }
+            .main-content { margin-left: 80px; width: calc(100% - 80px); }
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <img src="https://cdn-icons-png.flaticon.com/512/3106/3106037.png" alt="MMC Logo" class="brand-logo-img">
+            <span class="brand-name">MMC 24H</span>
+        </div>
+
+        <!-- PHÂN MỤC CHÍNH -->
+        <div class="nav-section">
+            <div class="nav-section-title">CHÍNH</div>
+            <div class="nav-item active" data-tab="dashboard"><i class="fas fa-chart-line"></i> <span>Tổng quan</span></div>
+        </div>
+
+        <!-- QUẢN LÝ NGƯỜI DÙNG -->
+        <div class="nav-section">
+            <div class="nav-section-title">QUẢN LÝ NGƯỜI DÙNG</div>
+            <div class="nav-item" data-tab="users"><i class="fas fa-users"></i> <span>Người dùng</span></div>
+            <div class="nav-item" data-tab="hosts"><i class="fas fa-house-user"></i> <span>Hồ sơ chủ nhà</span></div>
+            <div class="nav-item" data-tab="wallets"><i class="fas fa-wallet"></i> <span>Ví điện tử</span></div>
+        </div>
+
+        <!-- VẬN HÀNH -->
+        <div class="nav-section">
+            <div class="nav-section-title">VẬN HÀNH</div>
+            <div class="nav-item" data-tab="orders"><i class="fas fa-shopping-cart"></i> <span>Đơn hàng</span></div>
+            <div class="nav-item" data-tab="packages"><i class="fas fa-box-open"></i> <span>Gói dịch vụ</span></div>
+            <div class="nav-item" data-tab="services"><i class="fas fa-concierge-bell"></i> <span>Dịch vụ giặt lẻ</span></div>
+            <div class="nav-item" data-tab="disputes"><i class="fas fa-exclamation-triangle"></i> <span>Khiếu nại</span><span class="badge-count" id="disBadge">0</span></div>
+        </div>
+
+        <!-- DỮ LIỆU HỆ THỐNG -->
+        <div class="nav-section">
+            <div class="nav-section-title">DỮ LIỆU HỆ THỐNG</div>
+            <div class="nav-item" data-tab="payments"><i class="fas fa-credit-card"></i> <span>Thanh toán</span></div>
+            <div class="nav-item" data-tab="reviews"><i class="fas fa-star"></i> <span>Đánh giá</span></div>
+            <div class="nav-item" data-tab="ai_logs"><i class="fas fa-robot"></i> <span>Nhật ký AI</span></div>
+            <div class="nav-item" data-tab="notifications"><i class="fas fa-bell"></i> <span>Thông báo</span></div>
+        </div>
+
+        <a href="#" class="nav-logout" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i> <span>Đăng xuất</span>
+        </a>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-header">
+            <div>
+                <h2 id="pageTitle">Tổng quan hệ thống</h2>
+                <p style="color: var(--text-muted); font-size: 0.8rem;" id="pageSub">Chào mừng trở lại, Admin Tuấn 👋</p>
+            </div>
+            <div style="background: white; padding: 8px 16px; border-radius: 50px; border: 1px solid var(--border); font-weight: 700; font-size: 0.85rem;">
+                <i class="fas fa-shield-alt" style="color: var(--primary); margin-right: 8px;"></i> Admin Tuấn
+            </div>
+        </header>
+
+        <!-- STATS -->
+        <div class="stats-row" id="statsRow">
+            <div class="stat-box">
+                <div class="stat-icon" style="background: #e0f2fe; color: #0369a1;"><i class="fas fa-users"></i></div>
+                <div><p style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted);">USERS</p><h3 id="statTotalUsers">...</h3></div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-icon" style="background: #fef3c7; color: #92400e;"><i class="fas fa-shopping-bag"></i></div>
+                <div><p style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted);">ĐƠN HÀNG</p><h3 id="statTotalOrders">...</h3></div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-icon" style="background: #dcfce7; color: #15803d;"><i class="fas fa-money-check-alt"></i></div>
+                <div><p style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted);">DOANH THU</p><h3 id="statRevenue">...</h3></div>
+            </div>
+        </div>
+
+        <!-- MAIN DATA TABLE -->
+        <div class="data-card">
+            <div class="data-header">
+                <input type="text" class="search-input" id="tableSearch" placeholder="Tìm kiếm trong bảng...">
+                <button class="btn-add" id="btnAddMain" onclick="openCRUDModal()">
+                    <i class="fas fa-plus"></i> Thêm mới
+                </button>
+            </div>
+            <div class="table-responsive">
+                <table id="mainTable">
+                    <thead id="thead"></thead>
+                    <tbody id="tbody">
+                        <tr><td colspan="15" style="text-align: center; padding: 40px; color: var(--text-muted);"><i class="fas fa-spinner fa-spin"></i> Đang tải từ Database...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- CRUD MODAL -->
+    <div class="modal-overlay" id="crudModal">
+        <div class="modal-box">
+            <h3 id="modalTitle" style="margin-bottom: 24px;">Chi tiết bản ghi</h3>
+            <form id="crudForm">
+                <input type="hidden" id="formAction" value="add">
+                <input type="hidden" id="targetId">
+                <div id="formFields" class="form-grid"></div>
+                <div style="display: flex; gap: 12px; margin-top: 32px;">
+                    <button type="submit" class="btn-add" style="flex: 1; justify-content: center;">Lưu Database</button>
+                    <button type="button" class="btn-add" style="background: #94a3b8; flex: 1; justify-content: center;" onclick="closeModal()">Đóng</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "http://localhost:3000/api";
+        let activeTab = 'dashboard';
+        let currentFullData = [];
+
+        const fmtVND = (v) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(v || 0);
+
+        // --- MAPPING CẤU TRÚC SQL VÀ ENDPOINT ---
+        const tabConfigs = {
+            users: {
+                title: "Quản lý Người dùng", sub: "Bảng: nguoi_dung",
+                headers: ["ID", "Họ tên", "Email", "SĐT", "Vai trò", "Thành viên", "Thao tác"],
+                endpoint: "/users",
+                fields: [
+                    { label: "Họ tên", name: "ho_ten", type: "text", required: true },
+                    { label: "Email", name: "email", type: "email", required: true },
+                    { label: "SĐT", name: "so_dien_thoai", type: "text", required: true },
+                    { label: "Vai trò", name: "vai_tro", type: "select", options: ["khach_hang", "chu_nha", "quan_tri", "nhan_vien"] }
+                ]
+            },
+            hosts: {
+                title: "Hồ sơ chủ nhà", sub: "Bảng: ho_so_chu_nha",
+                headers: ["Mã Host", "ID User", "Địa chỉ", "Loại máy", "Rating", "Xác minh", "Hành động"],
+                endpoint: "/hosts/search"
+            },
+            orders: {
+                title: "Quản lý Đơn hàng", sub: "View: view_quan_ly_tat_ca_don",
+                headers: ["Mã đơn", "Khách hàng", "Chủ nhà", "Khối lượng", "Thành tiền", "Trạng thái", "Xem"],
+                endpoint: "/admin/stats" // Ví dụ route admin lấy full đơn
+            },
+            packages: {
+                title: "Gói dịch vụ Premium", sub: "Bảng: danh_muc_goi",
+                headers: ["Mã gói", "Tên gói", "Giá tiền", "Thời hạn", "Trạng thái", "Thao tác"],
+                endpoint: "/packages",
+                fields: [
+                    { label: "Tên gói", name: "ten_goi", type: "text" },
+                    { label: "Giá tiền", name: "gia_tien", type: "number" },
+                    { label: "Thời hạn (Ngày)", name: "thoi_han_ngay", type: "number" }
+                ]
+            },
+            services: {
+                title: "Danh mục dịch vụ lẻ", sub: "Bảng: dich_vu",
+                headers: ["ID", "Tên dịch vụ", "Giá (1kg)", "Mô tả", "Thao tác"],
+                endpoint: "/services" // Bạn cần tạo endpoint GET /services
+            },
+            wallets: {
+                title: "Quản lý Ví điện tử", sub: "Bảng: vi_dien_tu",
+                headers: ["ID Ví", "ID User", "Số dư hiện tại", "Cập nhật cuối", "Lịch sử"],
+                endpoint: "/wallet/balance"
+            },
+            reviews: {
+                title: "Đánh giá dịch vụ", sub: "Bảng: danh_gia",
+                headers: ["ID", "Đơn hàng", "Sao", "Bình luận", "Ngày tạo", "Xóa"],
+                endpoint: "/admin/reviews" // Endpoint lấy tất cả đánh giá
+            },
+            payments: {
+                title: "Lịch sử thanh toán", sub: "Bảng: thanh_toan",
+                headers: ["ID", "Đơn hàng", "Phương thức", "Số tiền", "Trạng thái", "Ngày GD"],
+                endpoint: "/admin/payments"
+            },
+            disputes: {
+                title: "Xử lý khiếu nại", sub: "Bảng: khieu_nai",
+                headers: ["Mã", "Đơn", "Lý do", "Trạng thái", "Ngày", "Xử lý"],
+                endpoint: "/admin/disputes"
+            }
+        };
+
+        // --- AUTH & DATA FETCHING ---
+        async function fetchRealData() {
+            const token = localStorage.getItem('mmc_token');
+            if(!token) { window.location.href = 'login.html'; return; }
+
+            const currentTabKey = (activeTab === 'dashboard') ? 'users' : activeTab;
+            const config = tabConfigs[currentTabKey];
+            
+            document.getElementById('pageTitle').innerText = config.title;
+            document.getElementById('pageSub').innerText = config.sub;
+            document.getElementById('statsRow').style.display = (activeTab === 'dashboard') ? 'grid' : 'none';
+
+            // Reset UI Loading
+            const head = document.getElementById('thead');
+            head.innerHTML = `<tr>${config.headers.map(h => `<th>${h}</th>`).join('')}</tr>`;
+            const body = document.getElementById('tbody');
+            body.innerHTML = '<tr><td colspan="20" style="text-align:center; padding:50px"><i class="fas fa-spinner fa-spin fa-2x"></i></td></tr>';
+
+            try {
+                // Lấy Stats nếu ở dashboard
+                if(activeTab === 'dashboard') {
+                    const sRes = await fetch(`${API_URL}/admin/stats`, { headers: { 'Authorization': token } });
+                    const sData = await sRes.json();
+                    if(sData.success) updateStatsUI(sData.data);
+                }
+
+                // Lấy dữ liệu bảng thực tế
+                const res = await fetch(`${API_URL}${config.endpoint}`, { headers: { 'Authorization': token } });
+                const result = await res.json();
+                
+                if(result.success || Array.isArray(result)) {
+                    currentFullData = result.success ? result.data : result;
+                    renderSQLTable(currentFullData);
+                }
+            } catch (err) {
+                body.innerHTML = `<tr><td colspan="20" style="text-align:center; color:red">Lỗi Database: ${err.message}</td></tr>`;
+            }
+        }
+
+        // --- RENDER DỮ LIỆU THEO TỪNG BẢNG SQL ---
+        function renderSQLTable(data) {
+            const body = document.getElementById('tbody');
+            const currentTabKey = (activeTab === 'dashboard') ? 'users' : activeTab;
+            body.innerHTML = '';
+
+            if(!data || data.length === 0) {
+                body.innerHTML = '<tr><td colspan="20" style="text-align:center">Bảng trống.</td></tr>';
+                return;
+            }
+
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                switch(currentTabKey) {
+                    case 'users':
+                        row.innerHTML = `<td>#${item.ma_nguoi_dung}</td><td><b>${item.ho_ten}</b></td><td>${item.email}</td><td>${item.so_dien_thoai}</td><td><span class="status-pill" style="background:#f1f5f9">${item.vai_tro}</span></td><td>${item.la_thanh_vien_premium ? '🌟 Premium' : 'Thường'}</td><td><div class="action-btns"><div class="btn-op"><i class="fas fa-pen"></i></div><div class="btn-op"><i class="fas fa-trash"></i></div></div></td>`;
+                        break;
+                    case 'hosts':
+                        row.innerHTML = `<td>#H-${item.ma_chu_nha}</td><td>#U-${item.ma_nguoi_dung}</td><td><div style="font-size:0.75rem">${item.dia_chi_chi_tiet}</div></td><td>${item.thong_tin_may_giat?.hang || 'N/A'}</td><td><i class="fas fa-star" style="color:#f59e0b"></i> ${item.diem_danh_gia_tb}</td><td>${item.da_xac_minh_danh_tinh ? '✅' : '❌'}</td><td><div class="btn-op"><i class="fas fa-eye"></i></div></td>`;
+                        break;
+                    case 'orders':
+                        row.innerHTML = `<td>#MMC-${item.ma_don_hang}</td><td>${item.ten_khach_hang || 'User #'+item.ma_khach_hang}</td><td>${item.ten_chu_nha || 'Host #'+item.ma_chu_nha}</td><td>${item.khoi_luong_kg}kg</td><td><b>${fmtVND(item.tong_tien_khach_tra)}</b></td><td><span class="status-pill status-${item.trang_thai_don_hang}">${item.trang_thai_don_hang}</span></td><td><div class="btn-op"><i class="fas fa-file-invoice"></i></div></td>`;
+                        break;
+                    case 'packages':
+                        row.innerHTML = `<td>#PKG-${item.ma_goi}</td><td><b>${item.ten_goi}</b></td><td>${fmtVND(item.gia_tien)}</td><td>${item.thoi_han_ngay} ngày</td><td>${item.dang_kich_hoat ? 'Hoạt động' : 'Tắt'}</td><td><div class="btn-op"><i class="fas fa-edit"></i></div></td>`;
+                        break;
+                    case 'payments':
+                        row.innerHTML = `<td>#${item.ma_thanh_toan}</td><td>#DON-${item.ma_don_hang}</td><td><span style="text-transform:uppercase">${item.phuong_thuc_thanh_toan}</span></td><td><b>${fmtVND(item.so_tien)}</b></td><td><span class="status-pill">${item.trang_thai_thanh_toan}</span></td><td>${new Date(item.ngay_giao_dich).toLocaleDateString()}</td>`;
+                        break;
+                    case 'wallets':
+                        row.innerHTML = `<td>#W-${item.ma_vi}</td><td>#U-${item.ma_nguoi_dung}</td><td style="color:var(--success); font-weight:800">${fmtVND(item.so_du_hien_tai)}</td><td>${new Date(item.ngay_cap_nhat).toLocaleString()}</td><td><button class="btn-add" style="padding:4px 8px; font-size:0.75rem">Lịch sử</button></td>`;
+                        break;
+                    case 'reviews':
+                        row.innerHTML = `<td>#${item.ma_danh_gia}</td><td>#${item.ma_don_hang}</td><td>${item.so_sao} ⭐</td><td><div style="font-size:0.75rem">${item.binh_luan}</div></td><td>${new Date(item.ngay_danh_gia).toLocaleDateString()}</td><td><i class="fas fa-trash" style="color:red; cursor:pointer"></i></td>`;
+                        break;
+                }
+                body.appendChild(row);
+            });
+        }
+
+        // --- CRUD ACTIONS ---
+        function openCRUDModal() {
+            const config = tabConfigs[(activeTab === 'dashboard' ? 'users' : activeTab)];
+            if(!config.fields) return alert("Bảng này hiện chưa hỗ trợ thêm mới thủ công.");
+
+            document.getElementById('modalTitle').innerText = "Thêm mới: " + config.title;
+            const container = document.getElementById('formFields');
+            container.innerHTML = config.fields.map(f => {
+                if(f.type === 'select') return `<div class="form-item"><label>${f.label}</label><select name="${f.name}">${f.options.map(o => `<option value="${o}">${o}</option>`).join('')}</select></div>`;
+                return `<div class="form-item"><label>${f.label}</label><input type="${f.type}" name="${f.name}" required></div>`;
+            }).join('');
+            document.getElementById('crudModal').style.display = 'flex';
+        }
+
+        function closeModal() { document.getElementById('crudModal').style.display = 'none'; }
+
+        function updateStatsUI(data) {
+            document.getElementById('statTotalUsers').innerText = data.totalUsers || 0;
+            document.getElementById('statTotalOrders').innerText = data.totalOrders || 0;
+            document.getElementById('statRevenue').innerText = fmtVND(data.totalRevenue);
+        }
+
+        // --- EVENT HANDLERS ---
+        document.querySelectorAll('.nav-item').forEach(btn => {
+            btn.onclick = function() {
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                activeTab = this.dataset.tab;
+                fetchRealData();
+            }
+        });
+
+        function logout() { localStorage.clear(); window.location.href = 'login.html'; }
+
+        window.onload = fetchRealData;
+    </script>
+</body>
+</html>

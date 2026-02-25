@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tìm Chủ Nhà Gần Bạn - MMC 24H</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); }
+    </style>
+</head>
+<body class="bg-slate-50">
+
+    <nav class="fixed top-0 w-full z-50 glass border-b border-white/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between h-20 items-center">
+            <a href="/" class="flex items-center gap-2">
+                <div class="bg-blue-600 p-2 rounded-xl shadow-lg shadow-blue-200">
+                    <i data-lucide="waves" class="text-white w-5 h-5"></i>
+                </div>
+                <span class="text-xl font-black">MMC 24H</span>
+            </a>
+            <div id="user-nav" class="flex items-center gap-4">
+                <!-- User Profile or Login -->
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-32 pb-20 px-4 max-w-7xl mx-auto">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
+            <div>
+                <h1 class="text-4xl font-black text-slate-900 mb-2">Mạng lưới Host của chúng tôi</h1>
+                <p class="text-slate-500 font-medium">Tìm điểm giặt gần bạn nhất dựa trên công nghệ Matching AI.</p>
+            </div>
+            <div class="relative w-full md:w-96">
+                <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5"></i>
+                <input type="text" placeholder="Tìm kiếm địa chỉ, khu vực..." class="w-full pl-12 pr-4 py-4 bg-white rounded-2xl border border-slate-200 outline-none focus:ring-4 focus:ring-blue-100 transition">
+            </div>
+        </div>
+
+        <!-- Filter Chips -->
+        <div class="flex gap-3 mb-12 overflow-x-auto pb-2 no-scrollbar">
+            <button class="px-6 py-2 bg-blue-600 text-white rounded-full text-sm font-bold whitespace-nowrap">Tất cả</button>
+            <button class="px-6 py-2 bg-white text-slate-600 border border-slate-100 rounded-full text-sm font-bold whitespace-nowrap hover:bg-slate-50">Gần nhất</button>
+            <button class="px-6 py-2 bg-white text-slate-600 border border-slate-100 rounded-full text-sm font-bold whitespace-nowrap hover:bg-slate-50">Đánh giá cao</button>
+            <button class="px-6 py-2 bg-white text-slate-600 border border-slate-100 rounded-full text-sm font-bold whitespace-nowrap hover:bg-slate-50">Giặt sấy 2h</button>
+        </div>
+
+        <div id="full-host-list" class="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <!-- Loading ... -->
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+        const API_BASE = 'http://127.0.0.1:3000/api';
+
+        async function fetchAllHosts() {
+            const container = document.getElementById('full-host-list');
+            try {
+                const res = await fetch(`${API_BASE}/hosts/search`);
+                const result = await res.json();
+                if (result.success) {
+                    container.innerHTML = result.data.map(host => `
+                        <div class="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300">
+                            <div class="relative mb-6">
+                                <div class="w-full aspect-square bg-slate-50 rounded-[2rem] overflow-hidden flex items-center justify-center">
+                                    ${host.anh_dai_dien ? `<img src="${host.anh_dai_dien}" class="w-full h-full object-cover">` : `<i data-lucide="user" class="text-slate-200 w-16 h-16"></i>`}
+                                </div>
+                                <div class="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-black shadow-sm flex items-center gap-1">
+                                    <i data-lucide="star" class="w-3 h-3 text-yellow-500 fill-yellow-500"></i> ${host.diem_danh_gia_tb}
+                                </div>
+                            </div>
+                            <h4 class="font-black text-lg mb-1">${host.ho_ten}</h4>
+                            <p class="text-slate-400 text-xs flex items-center gap-1 mb-6 h-8 line-clamp-2"><i data-lucide="map-pin" class="w-3 h-3 flex-shrink-0"></i> ${host.dia_chi_chi_tiet}</p>
+                            
+                            <div class="flex gap-2 text-[10px] font-bold uppercase tracking-wider mb-6">
+                                <span class="px-2 py-1 bg-green-50 text-green-600 rounded">Online</span>
+                                <span class="px-2 py-1 bg-blue-50 text-blue-600 rounded">Verified</span>
+                            </div>
+
+                            <a href="/don-hang.html?host_id=${host.ma_chu_nha}" class="block w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-sm text-center hover:bg-blue-600 transition shadow-lg shadow-slate-100">Chọn Host Này</a>
+                        </div>
+                    `).join('');
+                    lucide.createIcons();
+                }
+            } catch (err) {}
+        }
+        fetchAllHosts();
+    </script>
+</body>
+</html>

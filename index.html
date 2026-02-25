@@ -1,164 +1,255 @@
 <!DOCTYPE html>
-<html lang="vi" class="scroll-smooth">
-
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HHT Academy - Trang chủ</title>
+    <title>MMC 24H - Giặt Nhanh Cộng Đồng</title>
+    <!-- Sử dụng Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Thư viện Icon Lucide -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-
-        /* Style đơn giản cho animation */
-        .float-img {
-            animation: float 3s ease-in-out infinite;
-        }
-
-        @keyframes float {
-
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-
-            50% {
-                transform: translateY(-10px);
-            }
-        }
+        body { font-family: 'Inter', sans-serif; }
+        .nav-link { font-size: 0.95rem; font-weight: 500; color: #4b5563; transition: color 0.2s; }
+        .nav-link:hover { color: #2563eb; }
+        .hero-bg { background: radial-gradient(circle at top right, #eff6ff, #ffffff); }
     </style>
 </head>
+<body class="bg-slate-50 text-slate-900">
 
-<body class="bg-white text-slate-900">
+    <!-- Thanh điều hướng (Navbar) -->
+    <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20 items-center">
+                <!-- Logo -->
+                <a href="/" class="flex items-center gap-2 group">
+                    <div     class="bg-blue-600 p-2 rounded-xl shadow-lg shadow-blue-200 transition-transform group-hover:scale-105">
+                        <i data-lucide="waves" class="text-white w-6 h-6"></i>
+                    </div>
+                    <span class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">MMC 24H</span>
+                </a>
 
-    <!-- Header style sinh viên: dùng style trực tiếp để set chiều cao và màu -->
-    <header class="sticky top-0 z-50 shadow-sm"
-        style="background-color: white; height: 80px; border-bottom: 1px solid #eee;">
-        <div class="container mx-auto px-4 h-full flex items-center justify-between">
-
-            <!-- Logo dùng thẻ img và chỉnh size bằng style -->
-            <a href="index.html" style="display: flex; align-items: center; gap: 10px; text-decoration: none;">
-                <img src="frontend/assets/images/HHT.png" alt="Logo" style="height: 50px; width: auto;"
-                    onerror="this.src='https://placehold.co/50x50?text=HHT'">
-                <div>
-                    <h1 class="font-bold text-xl text-indigo-700" style="line-height: 1;">HHT</h1>
-                    <span class="text-xs text-gray-500" style="letter-spacing: 1px;">ACADEMY</span>
-                </div>
-            </a>
-
-            <nav class="hidden lg:flex gap-8">
-                <a href="index.html" class="font-bold text-indigo-600">Trang chủ</a>
-                <a href="about.html" class="font-medium text-gray-600 hover:text-indigo-600">Giới thiệu</a>
-                <a href="featured.html" class="font-medium text-gray-600 hover:text-indigo-600">Khóa học</a>
-                <a href="contact.html" class="font-medium text-gray-600 hover:text-indigo-600">Liên hệ</a>
-            </nav>
-
-            <div class="flex items-center gap-4">
-                <div id="auth-buttons" class="hidden sm:flex gap-3">
-                    <a href="login.html" class="px-4 py-2 font-bold text-gray-600 hover:bg-gray-100 rounded-lg">Đăng
-                        nhập</a>
-                    <a href="register.html" class="px-4 py-2 font-bold text-white rounded-lg"
-                        style="background-color: #4f46e5;">Đăng ký</a>
+                <!-- Điều hướng -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="instructions.html" class="nav-link">Hướng dẫn</a>
+                    <div class="h-5 w-px bg-slate-200"></div>
+                    <a href="login.html" class="nav-link font-semibold">Đăng nhập</a>
+                    <a href="register.html" class="bg-blue-600 text-white px-6 py-2.5 rounded-full font-bold hover:bg-blue-700 shadow-lg shadow-blue-100 transition-all active:scale-95">
+                        Bắt đầu ngay
+                    </a>
                 </div>
 
-                <div id="user-menu" class="hidden items-center gap-3">
-                    <span id="user-name" class="font-bold text-indigo-600">User</span>
-                    <a href="admin.html" id="admin-link" class="hidden text-red-500 font-bold text-sm">Admin</a>
-                    <button id="btn-logout" class="text-gray-500 hover:text-red-500"><i
-                            class="ph-bold ph-sign-out text-xl"></i></button>
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden">
+                    <button class="p-2 text-slate-600"><i data-lucide="menu"></i></button>
                 </div>
+            </div>
+        </div>
+    </nav>
 
-                <button class="lg:hidden text-2xl"><i class="ph ph-list"></i></button>
+    <!-- Hero Section -->
+    <header class="hero-bg pt-16 pb-24 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="lg:grid lg:grid-cols-2 lg:gap-12 items-center">
+                <div class="text-center lg:text-left">
+                    <div class="inline-flex items-center px-4 py-1.5 rounded-full bg-blue-100 text-blue-700 text-sm font-bold mb-6">
+                        <i data-lucide="sparkles" class="w-4 h-4 mr-2"></i> SV_STARTUP 2025
+                    </div>
+                    <h1 class="text-5xl font-black text-slate-900 leading-tight mb-6">
+                        Giặt đồ thông minh <br/>
+                        <span class="text-blue-600">Ngay tại nhà dân</span>
+                    </h1>
+                    <p class="text-xl text-slate-500 mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+                        Nền tảng kết nối sinh viên với mạng lưới hộ gia đình có máy giặt nhàn rỗi. Tiết kiệm 40% chi phí, giao nhận tận nơi 24/7.
+                    </p>
+                    <div class="flex flex-col sm:flex-row justify-center lg:justify-start gap-4">
+                        <a href="login.html" class="flex items-center justify-center gap-2 bg-slate-900 text-white px-8 py-4 rounded-2xl font-bold hover:bg-black transition shadow-xl">
+                            <i data-lucide="plus-circle" class="w-5 h-5"></i> Đặt lịch giặt ngay
+                        </a>
+                        <a href="login.html" class="flex items-center justify-center gap-2 bg-white border border-slate-200 px-8 py-4 rounded-2xl font-bold hover:bg-slate-50 transition shadow-sm">
+                            <i data-lucide="wallet" class="w-5 h-5"></i> Quản lý ví tiền
+                        </a>
+                    </div>
+                </div>
+                <div class="mt-16 lg:mt-0 relative">
+                    <div class="relative z-10 bg-white p-4 rounded-[2.5rem] shadow-2xl border border-slate-100">
+                        <div class="aspect-[4/3] bg-slate-50 rounded-[2rem] flex items-center justify-center">
+                            <i data-lucide="smartphone" class="w-32 h-32 text-slate-200"></i>
+                        </div>
+                    </div>
+                    <!-- Decorative Elements -->
+                    <div class="absolute -top-12 -right-12 w-64 h-64 bg-blue-400/10 rounded-full blur-3xl"></div>
+                    <div class="absolute -bottom-12 -left-12 w-64 h-64 bg-indigo-400/10 rounded-full blur-3xl"></div>
+                </div>
             </div>
         </div>
     </header>
 
-    <main>
-        <section class="py-20 bg-slate-900 text-white relative overflow-hidden">
-            <div class="container mx-auto px-4 flex flex-col md:flex-row items-center gap-10">
-                <div class="md:w-1/2">
-                    <span class="text-indigo-300 font-bold text-sm uppercase mb-2 block">Tuyển sinh 2025</span>
-                    <h1 class="text-5xl font-bold mb-6" style="line-height: 1.2;">Học Lập Trình <br> <span
-                            class="text-indigo-500">Thực Chiến</span></h1>
-                    <p class="text-gray-400 mb-8 text-lg">Cam kết đầu ra, hỗ trợ trọn đời. Học xong có việc làm ngay.
-                    </p>
-                    <a href="featured.html"
-                        class="inline-block px-8 py-3 rounded-xl font-bold text-white transition-transform hover:-translate-y-1"
-                        style="background: linear-gradient(to right, #4f46e5, #6366f1);">Xem Khóa Học</a>
+    <!-- Gói dịch vụ Premium (Dữ liệu từ Database) -->
+    <section class="py-24">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row md:justify-between md:items-end mb-12 gap-4">
+                <div>
+                    <h2 class="text-3xl font-black text-slate-900">Gói dịch vụ ưu đãi</h2>
+                    <p class="text-slate-500 mt-2">Dành riêng cho sinh viên các trường KTX Cầu Giấy</p>
                 </div>
-                <div class="md:w-1/2 flex justify-center">
-                    <img src="assets/images/Ảnh Khoa CNNT trang chủ.jpg" class="rounded-2xl shadow-2xl float-img"
-                        style="border: 5px solid rgba(255,255,255,0.1);">
+                <a href="" class="text-blue-600 font-bold flex items-center hover:translate-x-1 transition-transform">
+                    Xem tất cả gói <i data-lucide="chevron-right" class="ml-1 w-5 h-5"></i>
+                </a>
+            </div>
+
+            <!-- Loading Skeleton -->
+            <div id="loading-packages" class="grid md:grid-cols-3 gap-8">
+                <div class="h-64 bg-slate-200 rounded-3xl animate-pulse"></div>
+                <div class="h-64 bg-slate-200 rounded-3xl animate-pulse"></div>
+                <div class="h-64 bg-slate-200 rounded-3xl animate-pulse"></div>
+            </div>
+
+            <!-- Package Container -->
+            <div id="package-list" class="grid md:grid-cols-3 gap-8 hidden">
+                <!-- Data will be injected here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Chủ nhà tiêu biểu (Dữ liệu từ Database) -->
+    <section class="py-24 bg-slate-900 text-white rounded-[3rem] mx-4 mb-24">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-black mb-4">Mạng lưới Host gần bạn</h2>
+                <p class="text-slate-400 max-w-2xl mx-auto text-lg">Hàng ngàn hộ gia đình sẵn sàng phục vụ bạn với quy trình vệ sinh lồng giặt chuẩn 5 sao.</p>
+            </div>
+
+            <div id="host-list" class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Data will be injected here -->
+            </div>
+
+            <div class="mt-16 text-center">
+                <a href="login.html" class="inline-flex items-center gap-2 bg-white text-slate-900 px-8 py-3 rounded-full font-bold hover:bg-blue-50 transition">
+                    Khám phá thêm chủ nhà <i data-lucide="search" class="w-5 h-5"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 pt-16 pb-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-4 gap-12 mb-16">
+                <div class="col-span-2">
+                    <div class="flex items-center gap-2 mb-6">
+                        <div class="bg-blue-600 p-1.5 rounded-lg">
+                            <i data-lucide="waves" class="text-white w-5 h-5"></i>
+                        </div>
+                        <span class="text-xl font-bold">MMC 24H</span>
+                    </div>
+                    <p class="text-slate-500 max-w-sm">Dự án khởi nghiệp từ Trường Cao đẳng Công nghệ cao Hà Nội. Kết nối cộng đồng - Tối ưu nguồn lực.</p>
+                </div>
+                <div>
+                    <h4 class="font-bold mb-6">Trang con</h4>
+                    <ul class="space-y-4 text-slate-500 text-sm">
+                        <li><a href="don-hang.html" class="hover:text-blue-600">Đơn hàng của tôi</a></li>
+                        <li><a href="chu-nha.html" class="hover:text-blue-600">Danh sách Host</a></li>
+                        <li><a href="khieu-nai.html" class="hover:text-blue-600">Gửi khiếu nại</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold mb-6">Liên hệ</h4>
+                    <ul class="space-y-4 text-slate-500 text-sm">
+                        <li class="flex items-center gap-2"><i data-lucide="phone" class="w-4 h-4"></i> 0986 317 275</li>
+                        <li class="flex items-center gap-2"><i data-lucide="mail" class="w-4 h-4"></i> mmc.startup@hht.vn</li>
+                    </ul>
                 </div>
             </div>
-        </section>
-
-        <section class="py-16 bg-gray-50">
-            <div class="container mx-auto px-4">
-                <h2 class="text-3xl font-bold text-center mb-10 text-slate-800">Khóa học tiêu biểu</h2>
-                <div id="course-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div class="col-span-full text-center py-10">Loading...</div>
+            <div class="border-t border-slate-100 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-slate-400 text-xs font-medium">
+                <p>© 2025 Dự án Giặt Nhanh 24H (MMC). All rights reserved.</p>
+                <div class="flex gap-6">
+                    <a href="#" class="hover:text-slate-600">Điều khoản</a>
+                    <a href="#" class="hover:text-slate-600">Bảo mật</a>
                 </div>
             </div>
-        </section>
-    </main>
-
-    <footer class="bg-slate-900 text-gray-400 py-10 text-center text-sm mt-auto">
-        <p>&copy; 2025 HHT Academy.</p>
+        </div>
     </footer>
 
     <script>
-        const API = 'http://localhost:3000/api';
-        async function main() {
-            const token = localStorage.getItem('token');
-            const user = JSON.parse(localStorage.getItem('user') || '{}');
+        // Khởi tạo icons
+        lucide.createIcons();
 
-            if (token && user.name) {
-                document.getElementById('auth-buttons').classList.add('hidden');
-                document.getElementById('user-menu').style.display = 'flex';
-                document.getElementById('user-name').innerText = user.name;
-                if (user.role === 'admin') document.getElementById('admin-link').style.display = 'block';
-            } else {
-                document.getElementById('user-menu').style.display = 'none';
-            }
+        const API_BASE = 'http://127.0.0.1:3000/api';
 
-            document.getElementById('btn-logout')?.addEventListener('click', () => {
-                localStorage.clear();
-                window.location.reload();
-            });
-
-            const grid = document.getElementById('course-grid');
+        // 1. Tải danh sách gói dịch vụ
+        async function fetchPackages() {
+            const list = document.getElementById('package-list');
+            const skeleton = document.getElementById('loading-packages');
             try {
-                const res = await fetch(`${API}/courses`);
-                const data = await res.json();
-
-                if (data.length > 0) {
-                    grid.innerHTML = data.map(c => `
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all">
-                            <img src="${c.image}" class="w-full h-40 object-cover" onerror="this.src='https://placehold.co/400x250'">
-                            <div class="p-4">
-                                <h3 class="font-bold text-lg mb-2 truncate">${c.title}</h3>
-                                <p class="text-sm text-gray-500 mb-3">GV: ${c.instructor_name || 'HHT'}</p>
-                                <div class="flex justify-between items-center border-t pt-3">
-                                    <span class="font-bold text-indigo-600 text-lg">${parseInt(c.price).toLocaleString()}đ</span>
-                                    <button class="w-8 h-8 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center hover:bg-indigo-600 hover:text-white transition-colors"><i class="ph-bold ph-arrow-right"></i></button>
-                                </div>
+                const response = await fetch(`${API_BASE}/packages`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    skeleton.classList.add('hidden');
+                    list.classList.remove('hidden');
+                    
+                    list.innerHTML = result.data.map(pkg => `
+                        <div class="bg-white p-8 rounded-[2rem] border-2 ${pkg.ten_goi.includes('Premium') ? 'border-blue-600 shadow-xl shadow-blue-50' : 'border-slate-100'} relative hover:-translate-y-2 transition-transform duration-300">
+                            ${pkg.ten_goi.includes('Premium') ? '<span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest px-4 py-1 rounded-full">Phổ biến nhất</span>' : ''}
+                            <h3 class="text-xl font-bold mb-2">${pkg.ten_goi}</h3>
+                            <div class="flex items-baseline gap-1 mb-6">
+                                <span class="text-4xl font-black text-slate-900">${new Intl.NumberFormat('vi-VN').format(pkg.gia_tien)}đ</span>
+                                <span class="text-slate-400 text-sm font-medium">/${pkg.thoi_han_ngay} ngày</span>
                             </div>
+                            <p class="text-slate-500 text-sm mb-8 leading-relaxed">${pkg.mo_ta_quyen_loi || 'Dịch vụ giặt là chất lượng cao dành cho sinh viên.'}</p>
+                            <a href="/dang-ky-goi.html?id=${pkg.ma_goi}" class="block w-full text-center py-4 rounded-2xl font-bold transition ${pkg.ten_goi.includes('Premium') ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-slate-50 text-slate-600 hover:bg-slate-100'}">
+                                Đăng ký sử dụng
+                            </a>
                         </div>
                     `).join('');
-                } else {
-                    grid.innerHTML = '<div class="col-span-full text-center">Không có dữ liệu.</div>';
                 }
-            } catch (e) {
-                grid.innerHTML = '<div class="col-span-full text-center text-red-500">Lỗi kết nối server!</div>';
+            } catch (error) {
+                console.error('Lỗi fetch gói:', error);
             }
         }
 
-        main();
+        // 2. Tải danh sách chủ nhà Online
+        async function fetchHosts() {
+            const list = document.getElementById('host-list');
+            try {
+                const response = await fetch(`${API_BASE}/hosts/search`);
+                const result = await response.json();
+
+                if (result.success) {
+                    list.innerHTML = result.data.slice(0, 4).map(host => `
+                        <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 hover:bg-slate-700 transition cursor-pointer group">
+                            <div class="flex justify-between items-start mb-6">
+                                <div class="w-16 h-16 bg-slate-600 rounded-2xl flex items-center justify-center text-slate-400 overflow-hidden">
+                                    ${host.anh_dai_dien ? `<img src="${host.anh_dai_dien}" class="w-full h-full object-cover" />` : '<i data-lucide="user" class="w-8 h-8"></i>'}
+                                </div>
+                                <span class="flex items-center gap-1 text-yellow-400 font-bold text-sm">
+                                    ★ ${host.diem_danh_gia_tb}
+                                </span>
+                            </div>
+                            <h4 class="text-lg font-bold mb-1 group-hover:text-blue-400 transition">${host.ho_ten}</h4>
+                            <p class="text-slate-400 text-xs mb-4 flex items-center gap-1">
+                                <i data-lucide="map-pin" class="w-3 h-3"></i> ${host.dia_chi_chi_tiet}
+                            </p>
+                            <div class="flex items-center gap-2">
+                                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                <span class="text-[10px] font-bold text-green-500 uppercase">Sẵn sàng ngay</span>
+                            </div>
+                        </div>
+                    `).join('');
+                    lucide.createIcons();
+                }
+            } catch (error) {
+                console.error('Lỗi fetch chủ nhà:', error);
+            }
+        }
+
+        // Khởi chạy khi load trang
+        window.addEventListener('DOMContentLoaded', () => {
+            fetchPackages();
+            fetchHosts();
+        });
     </script>
 </body>
-
 </html>

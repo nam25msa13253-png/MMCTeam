@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tìm điểm giặt - MMC 24H</title>
+    <!-- Font chữ & Icon -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --primary-light: #eff6ff;
+            --secondary: #10b981;
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* --- HEADER --- */
+        header {
+            background: #fff;
+            border-bottom: 1px solid var(--border);
+            padding: 0.8rem 5%;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            background: var(--primary);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 5px 15px;
+            background: var(--primary-light);
+            border-radius: 50px;
+            cursor: pointer;
+        }
+
+        .user-name { font-weight: 600; font-size: 0.9rem; color: var(--primary); }
+        .user-avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; }
+
+        /* --- MAIN LAYOUT --- */
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 992px) {
+            .container { grid-template-columns: 1fr; }
+        }
+
+        /* --- SIDEBAR NAVIGATION --- */
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            position: sticky;
+            top: 100px;
+            height: fit-content;
+        }
+
+        .nav-item {
+            padding: 12px 20px;
+            text-decoration: none;
+            color: var(--text-muted);
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.95rem;
+        }
+
+        .nav-item i { width: 20px; font-size: 1.1rem; }
+
+        .nav-item:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .nav-item.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+
+        .logout-item {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            color: #ef4444;
+        }
+        
+        .logout-item:hover {
+            background: #fef2f2;
+            color: #ef4444;
+        }
+
+        /* --- CONTENT AREA --- */
+        .search-area {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 1400px) {
+            .search-area { grid-template-columns: 1fr; }
+        }
+
+        /* Filter Card */
+        .filter-card {
+            background: white;
+            padding: 24px;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            height: fit-content;
+        }
+
+        .filter-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filter-group { margin-bottom: 20px; }
+        .filter-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+        }
+
+        .filter-group input, .filter-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            outline: none;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+
+        .filter-group input:focus { border-color: var(--primary); }
+
+        .btn-ai-match {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary-light);
+            color: var(--primary);
+            border: 1px dashed var(--primary);
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: 0.3s;
+        }
+
+        .btn-ai-match:hover {
+            background: var(--primary);
+            color: white;
+            border-style: solid;
+        }
+
+        .btn-apply {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-apply:hover { background: var(--primary-dark); }
+
+        /* Results Display */
+        .results-header {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .host-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .host-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s, border-color 0.3s;
+            border: 1px solid transparent;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .host-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+        }
+
+        .card-top {
+            height: 100px;
+            background: linear-gradient(135deg, var(--primary) 0%, #1e3a8a 100%);
+            position: relative;
+        }
+
+        .status-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--secondary);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        .avatar-holder {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            bottom: -30px;
+            left: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--primary);
+            border: 4px solid white;
+            box-shadow: var(--shadow);
+        }
+
+        .card-body {
+            padding: 40px 20px 20px;
+            flex-grow: 1;
+        }
+
+        .host-name { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; }
+
+        .info-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .info-row i { color: var(--primary); width: 14px; margin-top: 4px; }
+
+        .machine-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 15px;
+        }
+
+        .tag {
+            background: var(--bg-body);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .card-footer {
+            padding: 15px 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fafafa;
+        }
+
+        .rating { color: #f59e0b; font-weight: 700; font-size: 0.9rem; }
+        .btn-select {
+            background: var(--primary);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 700;
+            transition: 0.3s;
+        }
+
+        .btn-select:hover { background: var(--primary-dark); }
+
+        .loading-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 80px;
+            color: var(--text-muted);
+        }
+
+        .distance-badge {
+            background: #e0e7ff;
+            color: #4338ca;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="customer_dashboard.html" class="logo">
+            <div class="logo-icon"><i class="fas fa-water"></i></div>
+            MMC 24H
+        </a>
+        <div class="nav-right">
+            <div class="user-info" id="userHeader">
+                <span class="user-name" id="displayUserName">Đang tải...</span>
+                <div class="user-avatar" id="displayAvatar">?</div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <aside>
+            <nav class="sidebar-nav">
+                <a href="customerdashboard.html" class="nav-item"><i class="fas fa-th-large"></i> Tổng quan</a>
+                <a href="search_hosts.html" class="nav-item active"><i class="fas fa-search"></i> Tìm điểm giặt</a>
+                <a href="dispute.html" class="nav-item"><i class="fas fa-history"></i> Lịch sử đơn hàng</a>
+                <a href="#" class="nav-item"><i class="fas fa-wallet"></i> Ví của tôi</a>
+                <a href="login.html" class="nav-item logout-item" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+            </nav>
+        </aside>
+
+        <!-- Main Search Content -->
+        <main>
+            <div class="search-area">
+                <!-- Filter Section -->
+                <div class="filter-card">
+                    <h3><i class="fas fa-sliders-h"></i> Bộ lọc tìm kiếm</h3>
+                    
+                    <button class="btn-ai-match" onclick="aiMatch()">
+                        <i class="fas fa-robot"></i> AI Matching (Gần nhất)
+                    </button>
+
+                    <div class="filter-group">
+                        <label>Khu vực</label>
+                        <input type="text" id="locSearch" placeholder="Ví dụ: Cầu Giấy...">
+                    </div>
+
+                    <div class="filter-group">
+                        <label>Loại máy giặt</label>
+                        <select id="machineType">
+                            <option value="all">Tất cả</option>
+                            <option value="Cửa ngang">Cửa ngang</option>
+                            <option value="Cửa trên">Cửa trên</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>Rating tối thiểu</label>
+                        <select id="minRate">
+                            <option value="0">Tất cả</option>
+                            <option value="4">4.0 sao trở lên</option>
+                            <option value="4.5">4.5 sao trở lên</option>
+                        </select>
+                    </div>
+
+                    <button class="btn-apply" onclick="fetchAndFilterHosts()">Cập nhật danh sách</button>
+                </div>
+
+                <!-- Results Section -->
+                <div class="results-container">
+                    <div class="results-header">
+                        <div>
+                            <h2 id="titleLabel" style="font-size: 1.4rem;">Các hộ gia đình xung quanh</h2>
+                            <p style="font-size: 0.9rem; color: var(--text-muted);">Dữ liệu cập nhật từ hệ thống Database MMC</p>
+                        </div>
+                        <div style="font-size: 0.9rem; font-weight: 700;">
+                            Tìm thấy <span id="countLabel" style="color: var(--primary);">0</span> kết quả
+                        </div>
+                    </div>
+
+                    <div class="host-grid" id="hostGrid">
+                        <!-- Loading spinner -->
+                        <div class="loading-state">
+                            <i class="fas fa-spinner fa-spin fa-3x"></i>
+                            <p style="margin-top: 15px;">Đang kết nối Database...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const API_URL = "http://localhost:3000/api"; // Địa chỉ Backend
+        let allHosts = []; // Lưu trữ dữ liệu lấy từ DB
+
+        // Hàm lấy thông tin User đã đăng nhập (Giả lập từ Token/Session)
+        function loadUserInfo() {
+            const user = JSON.parse(localStorage.getItem('user')) || { ho_ten: "Khách hàng" };
+            document.getElementById('displayUserName').innerText = user.ho_ten;
+            document.getElementById('displayAvatar').innerText = user.ho_ten.charAt(0);
+        }
+
+        // --- HÀM LẤY DỮ LIỆU TỪ DATABASE (hostController.searchHosts) ---
+        async function fetchHostsFromDB() {
+            const grid = document.getElementById('hostGrid');
+            try {
+                // Gọi tới endpoint hostController.searchHosts
+                const response = await fetch(`${API_URL}/hosts/search`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    allHosts = result.data;
+                    renderHosts(allHosts);
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                console.error("Lỗi Fetch Database:", error);
+                grid.innerHTML = `<div class="loading-state"><p style="color:red">Không thể lấy dữ liệu từ Database. Vui lòng kiểm tra Server.</p></div>`;
+            }
+        }
+
+        // --- HÀM TÌM KIẾM AI MATCHING (aiController.findBestHost) ---
+        async function aiMatch() {
+            const grid = document.getElementById('hostGrid');
+            grid.innerHTML = '<div class="loading-state"><i class="fas fa-robot fa-spin fa-3x"></i><p>AI đang tính toán Haversine...</p></div>';
+
+            try {
+                // Giả lập tọa độ Cầu Giấy (hoặc lấy từ Navigator)
+                const coords = { vi_do: 21.0365, kinh_do: 105.7950 };
+
+                const response = await fetch(`${API_URL}/ai/find-best`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(coords)
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    renderHosts(result.data, true); // Hiển thị kết quả AI kèm khoảng cách
+                }
+            } catch (error) {
+                alert("Lỗi khi gọi AI Matching API");
+                fetchHostsFromDB();
+            }
+        }
+
+        // Hàm render danh sách ra giao diện
+        function renderHosts(hosts, isAI = false) {
+            const grid = document.getElementById('hostGrid');
+            const count = document.getElementById('countLabel');
+            
+            grid.innerHTML = '';
+            count.innerText = hosts.length;
+
+            if (hosts.length === 0) {
+                grid.innerHTML = '<div class="loading-state"><p>Không tìm thấy chủ nhà nào đang Online.</p></div>';
+                return;
+            }
+
+            hosts.forEach(host => {
+                // Bóc tách JSON thong_tin_may_giat từ SQL
+                let machine = host.thong_tin_may_giat;
+                if (typeof machine === 'string') machine = JSON.parse(machine);
+
+                grid.innerHTML += `
+                    <div class="host-card">
+                        <div class="card-top">
+                            <span class="status-badge">${host.trang_thai_hoat_dong === 'dang_online' ? 'Online' : 'Bận'}</span>
+                            <div class="avatar-holder">
+                                ${host.anh_dai_dien ? `<img src="${host.anh_dai_dien}" style="width:100%; border-radius:50%">` : '<i class="fas fa-user-house"></i>'}
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="host-name">
+                                ${host.ho_ten} 
+                                ${isAI && host.khoang_cach ? `<span class="distance-badge">${parseFloat(host.khoang_cach).toFixed(1)} km</span>` : ''}
+                            </div>
+                            <div class="info-row">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>${host.dia_chi_chi_tiet}</span>
+                            </div>
+                            <div class="info-row">
+                                <i class="fas fa-soap"></i>
+                                <span>Nước giặt: <strong>${host.loai_nuoc_giat_xa || 'Tùy chọn'}</strong></span>
+                            </div>
+                            <div class="machine-tags">
+                                <span class="tag"><i class="fas fa-cog"></i> ${machine.hang || 'N/A'}</span>
+                                <span class="tag"><i class="fas fa-weight-hanging"></i> ${machine.khoi_luong || 'N/A'}</span>
+                                <span class="tag"><i class="fas fa-door-open"></i> ${machine.loai || 'Cửa ngang'}</span>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <div class="rating"><i class="fas fa-star"></i> ${host.diem_danh_gia_tb}</div>
+                            <a href="#" class="btn-select" onclick="bookHost(${host.ma_chu_nha})">Đặt lịch</a>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Hàm lọc tại chỗ (Search) dựa trên dữ liệu đã fetch từ DB
+        function fetchAndFilterHosts() {
+            const loc = document.getElementById('locSearch').value.toLowerCase();
+            const type = document.getElementById('machineType').value;
+            const rate = parseFloat(document.getElementById('minRate').value);
+
+            const filtered = allHosts.filter(h => {
+                let machine = h.thong_tin_may_giat;
+                if (typeof machine === 'string') machine = JSON.parse(machine);
+
+                const matchLoc = h.dia_chi_chi_tiet.toLowerCase().includes(loc);
+                const matchType = type === 'all' || machine.loai === type;
+                const matchRate = h.diem_danh_gia_tb >= rate;
+                return matchLoc && matchType && matchRate;
+            });
+
+            renderHosts(filtered);
+        }
+
+        function bookHost(id) {
+            alert(`Bạn đã chọn Host #${id}. Đang chuyển hướng tới trang tạo đơn hàng (orderController)...`);
+        }
+
+        // Khởi tạo trang
+        window.onload = () => {
+            loadUserInfo();
+            fetchHostsFromDB();
+        };
+    </script>
+</body>
+</html>

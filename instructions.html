@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hướng Dẫn Sử Dụng - MMC 24H</title>
+    <!-- Font chữ & Icon -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #10b981;
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+            scroll-behavior: smooth;
+        }
+
+        /* --- HEADER MỚI (THEO ẢNH CỦA BẠN) --- */
+        header {
+            background: #fff;
+            border-bottom: 1px solid var(--border);
+            padding: 0.8rem 5%;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            background: var(--primary);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #475569; /* Màu text nhẹ nhàng hơn */
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: color 0.3s;
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+        }
+
+        .separator {
+            width: 1px;
+            height: 20px;
+            background-color: #e2e8f0;
+        }
+
+        .btn-start {
+            background-color: var(--primary);
+            color: white;
+            padding: 12px 28px;
+            border-radius: 50px; /* Nút bo tròn dạng viên thuốc như trong ảnh */
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+            transition: all 0.3s;
+        }
+
+        .btn-start:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 10px -1px rgba(37, 99, 235, 0.3);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 80px 5%;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            max-width: 800px;
+            margin: 0 auto;
+            opacity: 0.9;
+        }
+
+        /* Tab System */
+        .tabs-container {
+            max-width: 1000px;
+            margin: -40px auto 40px;
+            background: white;
+            padding: 10px;
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .tab-btn {
+            padding: 15px 40px;
+            border: none;
+            background: transparent;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: all 0.3s;
+            color: var(--text-muted);
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Content Sections */
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .instruction-content {
+            display: none;
+        }
+
+        .instruction-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .step {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 60px;
+            align-items: center;
+        }
+
+        .step:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        .step-image {
+            flex: 1;
+            background: #e2e8f0;
+            height: 300px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5rem;
+            color: var(--primary);
+        }
+
+        .step-text {
+            flex: 1;
+        }
+
+        .step-number {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background: var(--secondary);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            font-weight: 800;
+            margin-bottom: 15px;
+        }
+
+        .step-text h2 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        /* FAQ Section */
+        .faq-section {
+            background: white;
+            padding: 60px 5%;
+            border-radius: 20px;
+            margin-top: 40px;
+            box-shadow: var(--shadow);
+        }
+
+        .faq-item {
+            border-bottom: 1px solid var(--border);
+            padding: 20px 0;
+        }
+
+        .faq-question {
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-answer {
+            margin-top: 15px;
+            color: var(--text-muted);
+            display: none;
+        }
+
+        /* Footer */
+        footer {
+            background: #1e293b;
+            color: white;
+            padding: 40px 5%;
+            text-align: center;
+            margin-top: 80px;
+        }
+
+        @media (max-width: 768px) {
+            .step { flex-direction: column !important; }
+            .tabs-container { flex-direction: column; width: 90%; }
+            .hero h1 { font-size: 1.8rem; }
+            .nav-right { gap: 12px; }
+            .separator { display: none; }
+            .btn-start { padding: 10px 20px; font-size: 0.85rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <!-- Logo với Icon sóng giống trong ảnh -->
+        <a href="index.html" class="logo">
+            <div class="logo-icon"><img src="E:\ACADEMY\Giatla\Giatla\frontend\assets\images\HHT.png" alt=""></div>
+            MMC 24H
+        </a>
+        
+        <!-- Thanh điều hướng bên phải -->
+        <div class="nav-right">
+            <a href="instructions.html" class="nav-link">Hướng dẫn</a>
+            <div class="separator"></div>
+            <a href="login.html" class="nav-link">Đăng nhập</a>
+            <a href="register.html" class="btn-start">Bắt đầu ngay</a>
+        </div>
+    </header>
+
+    <section class="hero">
+        <h1>Bắt đầu với MMC 24H</h1>
+        <p>Hệ thống kết nối giặt ủi cộng đồng đầu tiên tại Việt Nam. Tiết kiệm 40% chi phí, hoạt động 24/7 mọi lúc mọi nơi.</p>
+    </section>
+
+    <div class="tabs-container">
+        <button class="tab-btn active" onclick="switchTab('customer')">Tôi là Khách hàng</button>
+        <button class="tab-btn" onclick="switchTab('host')">Tôi là Chủ nhà (Host)</button>
+    </div>
+
+    <div class="container">
+        <!-- NỘI DUNG CHO KHÁCH HÀNG -->
+        <div id="customer-content" class="instruction-content active">
+            <div class="step">
+                <div class="step-image"><i class="fas fa-search"></i></div>
+                <div class="step-text">
+                    <span class="step-number">1</span>
+                    <h2>Tìm điểm giặt gần nhất</h2>
+                    <p>Mở ứng dụng MMC, hệ thống sẽ tự động quét các hộ gia đình có máy giặt nhàn rỗi trong bán kính 1km xung quanh bạn. Bạn có thể xem đánh giá (Rating) và thông tin máy giặt của họ.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-image"><i class="fas fa-edit"></i></div>
+                <div class="step-text">
+                    <span class="step-number">2</span>
+                    <h2>Thiết lập đơn hàng</h2>
+                    <p>Chọn khối lượng đồ (kg), loại nước giặt/xả yêu thích. Đặc biệt, bạn nên chụp ảnh nhanh các món đồ quan trọng để hệ thống làm căn cứ bảo hiểm và đối chiếu.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-image"><i class="fas fa-truck"></i></div>
+                <div class="step-text">
+                    <span class="step-number">3</span>
+                    <h2>Giao đồ & Theo dõi</h2>
+                    <p>Bạn có thể tự mang đồ đến hoặc gọi Shipper sinh viên của MMC. Theo dõi trạng thái giặt trực tiếp trên App: Đang giặt - Đang phơi/sấy - Hoàn thành.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- NỘI DUNG CHO CHỦ NHÀ -->
+        <div id="host-content" class="instruction-content">
+            <div class="step">
+                <div class="step-image"><i class="fas fa-user-check"></i></div>
+                <div class="step-text">
+                    <span class="step-number">1</span>
+                    <h2>Đăng ký & Xác minh</h2>
+                    <p>Để trở thành Host, bạn cần cung cấp thông tin máy giặt và xác minh danh tính. MMC sẽ gửi bộ quy chuẩn vệ sinh và túi giặt tiêu chuẩn cho bạn.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-image"><i class="fas fa-bell"></i></div>
+                <div class="step-text">
+                    <span class="step-number">2</span>
+                    <h2>Nhận đơn & Xử lý</h2>
+                    <p>Khi có khách đặt, hệ thống sẽ báo về điện thoại. Bạn kiểm tra đồ, xác nhận trạng thái trên app và bắt đầu quy trình giặt theo yêu cầu riêng của khách hàng.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-image"><i class="fas fa-wallet"></i></div>
+                <div class="step-text">
+                    <span class="step-number">3</span>
+                    <h2>Nhận thu nhập</h2>
+                    <p>Tiền công (trừ phí hoa hồng 15%) sẽ được cộng ngay vào Ví MMC sau khi đơn hàng hoàn thành. Bạn có thể rút về ngân hàng vào cuối tuần.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ Section -->
+        <section class="faq-section">
+            <h2 style="text-align: center; margin-bottom: 30px;">Câu hỏi thường gặp (FAQ)</h2>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    Nếu đồ bị hỏng hoặc thất lạc thì sao?
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    MMC có quỹ dự phòng rủi ro 10%. Nếu lỗi xác định từ phía Host, Host sẽ bồi thường. Nếu không xác định rõ, MMC sẽ hỗ trợ bồi thường dựa trên ảnh chụp đối chiếu trước khi giặt.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    Làm sao để biết máy giặt của chủ nhà sạch?
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Các Host bắt buộc phải ký cam kết vệ sinh lồng giặt định kỳ và gửi video xác nhận lên hệ thống. Ngoài ra, đánh giá của cộng đồng sinh viên sẽ giúp lọc bỏ các Host không đảm bảo vệ sinh.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    Tôi có thể thanh toán bằng tiền mặt không?
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Để đảm bảo minh bạch và tránh tranh chấp, MMC khuyến khích thanh toán qua Momo, VNPay hoặc Ví nội bộ. Tuy nhiên, một số Host vẫn chấp nhận thanh toán tiền mặt khi nhận lại đồ.
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p>© 2025 Dự án Giặt Nhanh MMC 24H - Trường Cao đẳng Công nghệ cao Hà Nội</p>
+        <p style="font-size: 0.8rem; margin-top: 10px; opacity: 0.7;">Đội ngũ: Công Tuấn, Kim Liên, Hữu Duy, Văn An, Quý Duy</p>
+    </footer>
+
+    <script>
+        // Chuyển đổi giữa Tab Khách hàng và Chủ nhà
+        function switchTab(role) {
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            const contents = document.querySelectorAll('.instruction-content');
+            contents.forEach(content => content.classList.remove('active'));
+            
+            document.getElementById(role + '-content').classList.add('active');
+        }
+
+        // Đóng mở FAQ
+        function toggleFaq(element) {
+            const answer = element.nextElementSibling;
+            const icon = element.querySelector('i');
+            
+            if (answer.style.display === "block") {
+                answer.style.display = "none";
+                icon.style.transform = "rotate(0deg)";
+            } else {
+                answer.style.display = "block";
+                icon.style.transform = "rotate(180deg)";
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,237 +1,434 @@
 <!DOCTYPE html>
 <html lang="vi">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng Nhập - HHT Academy</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
+    <title>Đăng nhập - MMC 24H</title>
+    <!-- Google Fonts & FontAwesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --primary-light: #eff6ff;
+            --secondary: #10b981;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --white: #ffffff;
+            --error: #ef4444;
+            --success: #10b981;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
+            background-color: var(--white);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            overflow-x: hidden;
         }
 
-        .animated-bg {
-            background: linear-gradient(-45deg, #2563EB, #059669, #F59E0B, #EF4444);
-            background-size: 400% 400%;
-            animation: gradient 15s ease infinite;
+        /* --- LAYOUT CHIA ĐÔI (SPLIT SCREEN) --- */
+        .login-container {
+            display: flex;
+            width: 100%;
         }
 
-        @keyframes gradient {
-            0% {
-                background-position: 0% 50%;
-            }
-
-            50% {
-                background-position: 100% 50%;
-            }
-
-            100% {
-                background-position: 0% 50%;
-            }
+        /* Phần bên trái: Branding & Intro */
+        .auth-side-info {
+            flex: 1.2;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 80px;
+            color: white;
+            position: relative;
         }
 
-        .login-card {
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-            border: 1px solid #E2E8F0;
+        .auth-side-info::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: url('https://www.transparenttextures.com/patterns/cubes.png');
+            opacity: 0.1;
+        }
+
+        .brand-large {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 2rem;
+            z-index: 1;
+        }
+
+        .brand-icon-white {
+            background: white;
+            color: var(--primary);
+            width: 60px;
+            height: 60px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .slogan-text {
+            font-size: 1.25rem;
+            line-height: 1.6;
+            margin-bottom: 3rem;
+            opacity: 0.9;
+            max-width: 500px;
+            z-index: 1;
+        }
+
+        .feature-list {
+            list-style: none;
+            z-index: 1;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+
+        .feature-item i {
+            background: rgba(255,255,255,0.2);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+        }
+
+        /* Phần bên phải: Form đăng nhập */
+        .auth-side-form {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            background-color: var(--white);
+        }
+
+        .form-wrapper {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .form-header {
+            margin-bottom: 2.5rem;
+        }
+
+        .form-header h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-header p {
+            color: var(--text-muted);
+        }
+
+        /* --- INPUT STYLES --- */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 700;
+            margin-bottom: 0.6rem;
+            color: var(--text-main);
+        }
+
+        .input-box {
+            position: relative;
+        }
+
+        .input-box i {
+            position: absolute;
+            left: 1.25rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            transition: 0.3s;
+        }
+
+        input {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3.2rem;
+            border: 2px solid #f1f5f9;
+            background: #f8fafc;
+            border-radius: 16px;
+            outline: none;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            color: var(--text-main);
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+
+        input:focus + i {
+            color: var(--primary);
+        }
+
+        .form-footer-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            font-size: 0.875rem;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .forgot-pass {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 1.1rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50px; /* Nút viên thuốc pill-shaped */
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-submit:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px -5px rgba(37, 99, 235, 0.5);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        .msg-box {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            text-align: center;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .error-style { background: #fef2f2; color: var(--error); border: 1px solid #fee2e2; }
+        .success-style { background: #f0fdf4; color: var(--success); border: 1px solid #dcfce7; }
+
+        .signup-redirect {
+            margin-top: 2.5rem;
+            text-align: center;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        .signup-redirect a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 800;
+        }
+
+        /* --- RESPONSIVE MOBILE --- */
+        @media (max-width: 1024px) {
+            .auth-side-info { padding: 40px; }
+            .brand-large { font-size: 2rem; }
+        }
+
+        @media (max-width: 850px) {
+            body { flex-direction: column; }
+            .auth-side-info {
+                flex: none;
+                padding: 40px 20px;
+                align-items: center;
+                text-align: center;
+            }
+            .slogan-text { margin-bottom: 1.5rem; }
+            .feature-list { display: none; }
+            .auth-side-form { padding: 40px 20px; }
         }
     </style>
 </head>
+<body>
 
-<body class="h-screen w-screen overflow-hidden flex">
-
-    <div class="hidden lg:flex w-1/2 relative flex-col justify-between p-12 text-white animated-bg">
-
-        <div class="absolute inset-0 bg-black/30"></div>
-
-        <a href="index.html" class="relative z-10 flex items-center gap-3 group w-fit cursor-pointer">
-            <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center p-1 border border-gray-100">
-                <img src="frontend/assets/images/HHT.png" alt="HHT Logo" class="w-full h-full object-contain">
+    <div class="login-container">
+        <!-- Bên trái: Thông tin thương hiệu -->
+        <div class="auth-side-info">
+            <div class="brand-large">
+                <div class="brand-icon-white"><i class="fas fa-water"></i></div>
+                <span>MMC 24H</span>
             </div>
-            <span class="font-extrabold text-xl tracking-tight">HHT Academy</span>
-        </a>
-
-        <div class="relative z-10 max-w-lg">
-            <div class="p-8 rounded-2xl shadow-2xl bg-white/10 backdrop-blur-md border border-white/20">
-                <p class="text-xl font-medium leading-relaxed italic">"Đăng nhập cổng thông tin để khám phá lộ trình học
-                    tập được cá nhân hóa và quản lý các lớp học phần của bạn."</p>
-                <div class="mt-6 flex items-center gap-4">
-                    <img src="frontend/assets/images/Ảnh Nguyễn Tuấn.jpg"
-                        class="w-12 h-12 rounded-full border-2 border-white/50 object-cover">
-                    <div>
-                        <h4 class="font-bold text-white">Nguyễn Công Tuấn</h4>
-                        <p class="text-sm text-white/80">Giảng viên Phát triển phần mềm</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="relative z-10 flex gap-6 text-sm font-medium text-white/70">
-            <a href="#" class="hover:text-white transition-colors">Điều khoản</a>
-            <a href="#" class="hover:text-white transition-colors">Bảo mật</a>
-            <a href="contact.html" class="hover:text-white transition-colors">Liên hệ</a>
-        </div>
-    </div>
-
-
-    <div class="w-full lg:w-1/2 flex flex-col justify-center items-center p-8 bg-white relative">
-
-        <div class="w-full max-w-md space-y-8 login-card p-10 rounded-2xl bg-white">
-            <div class="text-center lg:text-left">
-                <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Chào mừng trở lại</h2>
-                <p class="mt-2 text-slate-500 font-medium">Đăng nhập vào hệ thống HHT.</p>
-            </div>
-
-            <form id="login-form" class="space-y-6">
-
-                <div class="space-y-2">
-                    <label class="text-sm font-semibold text-slate-700 ml-1">Email</label>
-                    <input type="email" id="email"
-                        class="w-full px-4 py-3 rounded-xl border border-slate-300 bg-slate-50 focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10 outline-none transition-all"
-                        placeholder="teacher@hht.edu.vn" required>
-                </div>
-
-                <div class="space-y-2">
-                    <div class="flex justify-between items-center px-1">
-                        <label class="text-sm font-semibold text-slate-700">Mật khẩu</label>
-                        <a href="#" class="text-xs font-bold text-blue-600 hover:text-blue-700 hover:underline">Quên mật
-                            khẩu?</a>
-                    </div>
-                    <div class="relative">
-                        <input type="password" id="password"
-                            class="w-full px-4 py-3 rounded-xl border border-slate-300 bg-slate-50 focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10 outline-none transition-all pr-10"
-                            placeholder="••••••••" required>
-                        <button type="button" onclick="togglePass()"
-                            class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
-                            <i id="eye-icon" class="ph-bold ph-eye"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <div id="msg"
-                    class="hidden p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm font-medium flex items-center gap-2 animate-pulse">
-                    <i class="ph-fill ph-warning-circle text-lg shrink-0"></i> <span id="msg-text">Lỗi</span>
-                </div>
-
-                <button type="submit" id="btn-submit"
-                    class="w-full py-3.5 bg-blue-700 hover:bg-blue-800 text-white font-bold rounded-xl shadow-lg shadow-blue-500/30 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
-                    <span>Đăng nhập hệ thống</span>
-                    <i class="ph-bold ph-sign-in"></i>
-                </button>
-            </form>
-
-            <div class="relative py-2">
-                <div class="absolute inset-0 flex items-center">
-                    <div class="w-full border-t border-slate-200"></div>
-                </div>
-                <div class="relative flex justify-center text-xs uppercase"><span
-                        class="bg-white px-4 text-slate-400 font-bold">Hoặc</span></div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-3">
-                <a href="https://accounts.google.com/o/oauth2/auth?client_id=768046406196-dudfbk5ckv7lm0q4f1tq7ut2ks2vj0n1.apps.googleusercontent.com&redirect_uri=http://localhost:3000/google-callback&response_type=code&scope=email%20profile"
-                    class="flex items-center justify-center gap-2 py-2.5 border border-slate-300 rounded-xl hover:bg-slate-50 transition-all shadow-sm cursor-pointer">
-                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5">
-                    <span class="text-sm font-bold text-slate-600">Google</span>
-                </a>
-                <button
-                    class="flex items-center justify-center gap-2 py-2.5 border border-slate-300 rounded-xl hover:bg-slate-50 transition-all shadow-sm">
-                    <img src="https://www.svgrepo.com/show/475647/facebook-color.svg" class="w-5 h-5">
-                    <span class="text-sm font-bold text-slate-600">Facebook</span>
-                </button>
-            </div>
-
-            <p class="text-center text-sm text-slate-500">
-                Bạn chưa có tài khoản? <a href="register.html" class="text-blue-600 font-bold hover:underline">Đăng ký
-                    ngay</a>
+            <p class="slogan-text">
+                Giải pháp giặt là cộng đồng thông minh đầu tiên tại Việt Nam. Kết nối nhu cầu, sẻ chia nguồn lực.
             </p>
+            <ul class="feature-list">
+                <li class="feature-item"><i class="fas fa-check"></i> Tiết kiệm 40% chi phí giặt là</li>
+                <li class="feature-item"><i class="fas fa-check"></i> Công nghệ AI Matching thông minh</li>
+                <li class="feature-item"><i class="fas fa-check"></i> Theo dõi đơn hàng thời gian thực</li>
+                <li class="feature-item"><i class="fas fa-check"></i> Hoạt động 24/7 linh hoạt</li>
+            </ul>
+        </div>
+
+        <!-- Bên phải: Form -->
+        <div class="auth-side-form">
+            <div class="form-wrapper">
+                <div class="form-header">
+                    <h2>Chào mừng bạn!</h2>
+                    <p>Vui lòng nhập thông tin để truy cập hệ thống.</p>
+                </div>
+
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="email">Email tài khoản</label>
+                        <div class="input-box">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="email" placeholder="example@gmail.com" required autocomplete="email">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Mật khẩu</label>
+                        <div class="input-box">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="password" placeholder="Nhập mật khẩu..." required autocomplete="current-password">
+                        </div>
+                    </div>
+
+                    <div class="form-footer-options">
+                        <label class="checkbox-group">
+                            <input type="checkbox" id="remember"> Ghi nhớ đăng nhập
+                        </label>
+                        <a href="#" class="forgot-pass">Quên mật khẩu?</a>
+                    </div>
+
+                    <button type="submit" class="btn-submit" id="btnAction">
+                        <span>Đăng nhập ngay</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+
+                    <div id="statusMsg" class="msg-box"></div>
+                </form>
+
+                <div class="signup-redirect">
+                    Bạn mới biết đến MMC? <a href="register.html">Đăng ký ngay</a>
+                </div>
+            </div>
         </div>
     </div>
-
 
     <script>
-        const API_URL = 'http://localhost:3000/api';
+        const API_URL = "http://localhost:3000/api/auth";
+        const form = document.getElementById('loginForm');
+        const btn = document.getElementById('btnAction');
+        const msg = document.getElementById('statusMsg');
 
-        function togglePass() {
-            const input = document.getElementById('password');
-            const icon = document.getElementById('eye-icon');
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.classList.replace('ph-eye', 'ph-eye-slash');
-            } else {
-                input.type = 'password';
-                icon.classList.replace('ph-eye-slash', 'ph-eye');
-            }
+        function displayMessage(text, type) {
+            msg.innerText = text;
+            msg.className = `msg-box ${type === 'success' ? 'success-style' : 'error-style'}`;
+            msg.style.display = 'block';
         }
 
-        document.getElementById('login-form').addEventListener('submit', async (e) => {
+        form.onsubmit = async (e) => {
             e.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const msgDiv = document.getElementById('msg');
-            const btn = document.getElementById('btn-submit');
-
-            btn.innerHTML = '<i class="ph-bold ph-spinner animate-spin text-xl"></i> Đang xử lý...';
+            
+            // UI Loading
             btn.disabled = true;
-            btn.classList.add('opacity-70');
-            msgDiv.classList.add('hidden');
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Đang xác thực...`;
+            msg.style.display = 'none';
+
+            const payload = {
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value
+            };
 
             try {
-                const res = await fetch(`${API_URL}/login`, {
+                const response = await fetch(`${API_URL}/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
+                    body: JSON.stringify(payload)
                 });
 
-                const data = await res.json();
+                const result = await response.json();
 
-                if (res.ok) {
-                    localStorage.setItem('authToken', data.token);
-                    localStorage.setItem('user', JSON.stringify(data.user));
+                if (result.success) {
+                    displayMessage("Đăng nhập thành công! Đang chuyển hướng...", "success");
+                    
+                    // Lưu trữ phiên làm việc
+                    localStorage.setItem('mmc_token', result.token);
+                    localStorage.setItem('mmc_user', JSON.stringify(result.user));
 
-                    btn.classList.replace('bg-blue-700', 'bg-green-600');
-                    btn.innerHTML = '<i class="ph-bold ph-check-circle"></i> Thành công!';
-
+                    // Logic điều hướng theo vai trò (Role-based redirection)
+                    const role = result.user.role;
                     setTimeout(() => {
-                        if (data.user.role === 'admin') {
-                            window.location.href = 'admin.html';
-                        } else if (data.user.role === 'teacher') {
-                            window.location.href = 'teacher.html';
-                        } else {
-                            window.location.href = 'student.html';
+                        switch(role) {
+                            case 'khach_hang': window.location.href = 'customerdashboard.html'; break;
+                            case 'chu_nha': window.location.href = 'hostdashboard.html'; break;
+                            case 'quan_tri': window.location.href = 'admindashboard.html'; break;
+                            case 'nhan_vien': window.location.href = 'staffdashboard.html'; break;
+                            default:
+                                displayMessage("Lỗi hệ thống: Vai trò người dùng không hợp lệ.", "error");
+                                btn.disabled = false;
+                                btn.innerHTML = `<span>Đăng nhập ngay</span> <i class="fas fa-arrow-right"></i>`;
                         }
                     }, 1000);
                 } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Đăng nhập thất bại',
-                        text: data.message || 'Vui lòng kiểm tra lại Email và Mật khẩu.',
-                        confirmButtonColor: '#EF4444'
-                    });
-                    throw new Error('Login failed');
+                    displayMessage(result.message || "Email hoặc mật khẩu không đúng.", "error");
+                    btn.disabled = false;
+                    btn.innerHTML = `<span>Đăng nhập ngay</span> <i class="fas fa-arrow-right"></i>`;
                 }
             } catch (err) {
-                if (err.message !== 'Login failed') {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Lỗi Kết Nối',
-                        text: err.message.includes('Failed to fetch') ? 'Không thể kết nối đến Server API (Port 3000). Vui lòng kiểm tra Backend.' : 'Lỗi không xác định.',
-                        confirmButtonColor: '#EF4444'
-                    });
-                }
-
+                console.error(err);
+                displayMessage("Không thể kết nối đến máy chủ. Hãy thử lại sau.", "error");
                 btn.disabled = false;
-                btn.classList.remove('opacity-70', 'bg-green-600');
-                btn.classList.add('bg-blue-700');
-                btn.innerHTML = '<span>Đăng nhập hệ thống</span><i class="ph-bold ph-sign-in"></i>';
+                btn.innerHTML = `<span>Đăng nhập ngay</span> <i class="fas fa-arrow-right"></i>`;
             }
-        });
+        };
     </script>
 </body>
-
 </html>

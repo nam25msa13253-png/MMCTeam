@@ -1,261 +1,201 @@
-const db = require('../config/db_connect');// Kết nối đến database (Note CTuấn)
-const jwt = require('jsonwebtoken');// Thư viện tạo và xác thực JWT (Note CTuấn)
-const bcrypt = require('bcryptjs');// Thư viện mã hóa mật khẩu (Note CTuấn)
-const nodemailer = require('nodemailer');// Thư viện gửi email (Note CTuấn)
+const db = require('../config/db_connect');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs'); // Sử dụng bcryptjs để ổn định trên mọi môi trường
+const nodemailer = require('nodemailer');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'hht_academy_secret_key_2024';
+const JWT_SECRET = process.env.JWT_SECRET || 'mmc_giatla_secret_key_2025';
 
-// Cấu hình gửi mail (Đặt ở ngoài cùng để tái sử dụng)
+// 1. Cấu hình gửi mail (Sử dụng Gmail và App Password của Tuấn)
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
         user: 'nguyencongtuan2612@gmail.com',
-        pass: 'abwysjawqqmhvtbn'
+        pass: 'abwysjawqqmhvtbn' 
     }
 });
 
-const validateRegistrationData = (name, email, password) => {
-    // ... logic validation cũ ...
-    const nameRegex = /\d/;
-    if (nameRegex.test(name)) return { valid: false, message: 'Tên không được chứa ký tự số.' };
-    if (name.trim() !== name) return { valid: false, message: 'Tên không được chứa khoảng trắng thừa.' };
+// Bộ nhớ tạm lưu OTP (Lưu ý: Nếu restart server, OTP này sẽ mất)
+let otpStore = {};
 
-    const emailParts = email.split('@');
-    if (emailParts.length !== 2) return { valid: false, message: 'Định dạng email không hợp lệ.' };
-
-    const minLength = 6;
-    const uppercaseRegex = /[A-Z]/;
-    const lowercaseRegex = /[a-z]/;
-    const specialCharRegex = /[!@#$%^&*(),.?":{}|<>]/;
-
-    if (password.length < minLength) return { valid: false, message: 'Mật khẩu phải có tối thiểu 6 ký tự.' };
-    if (!uppercaseRegex.test(password)) return { valid: false, message: 'Mật khẩu phải chứa ít nhất 1 ký tự viết hoa.' };
-    if (!lowercaseRegex.test(password)) return { valid: false, message: 'Mật khẩu phải chứa ít nhất 1 ký tự viết thường.' };
-    if (!specialCharRegex.test(password)) return { valid: false, message: 'Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt (!@#$%...).' };
-
-    return { valid: true };
-};
-
-// Hàm xác định role dựa trên email
-const determineUserRole = (email, currentRole) => {
-    const lowerEmail = email.toLowerCase();
-
-    // Quy tắc phân loại role
-    const teacherPatterns = [
-        'teacher', 'giangvien', 'gv_', 'gv.', 'giáo viên',
-        'instructor', 'lecturer', 'trainer', 'faculty'
-    ];
-
-    const adminPatterns = [
-        'admin', 'administrator', 'superadmin',
-        'quanly', 'manager', 'moderator'
-    ];
-
-    // Kiểm tra admin trước (ưu tiên cao nhất)
-    for (const pattern of adminPatterns) {
-        if (lowerEmail.includes(pattern)) {
-            return 'admin';
-        }
-    }
-
-    // Kiểm tra teacher
-    for (const pattern of teacherPatterns) {
-        if (lowerEmail.includes(pattern)) {
-            return 'teacher';
-        }
-    }
-
-    // Kiểm tra domain đặc biệt
-    if (lowerEmail.endsWith('@hht.edu.vn')) {
-        return 'teacher'; // Mặc định email @hht.edu.vn là giáo viên
-    }
-
-    if (lowerEmail.endsWith('@admin.hht.edu.vn')) {
-        return 'admin';
-    }
-
-    // Giữ nguyên role từ database nếu không khớp pattern nào
-    return currentRole || 'student';
-};
-
-exports.register = async (req, res) => {
+/**
+ * GỬI MÃ OTP
+ */
+const sendOTP = async (req, res) => {
     try {
-        // Lấy email từ request người dùng gửi lên
-        const { name, email, password } = req.body;
-
-        if (!name || !email || !password) {
-            return res.status(400).json({ message: 'Vui lòng điền đầy đủ thông tin!' });
+        const { email } = req.body;
+        if (!email || !email.toLowerCase().endsWith('@gmail.com')) {
+            return res.status(400).json({ success: false, message: 'Hệ thống chỉ chấp nhận Gmail.' });
         }
 
-        const validation = validateRegistrationData(name, email, password);
-        if (!validation.valid) {
-            return res.status(400).json({ message: validation.message });
-        }
-
-        const [existingUser] = await db.execute('SELECT * FROM users WHERE email = ?', [email]);
-        if (existingUser.length > 0) {
-            return res.status(400).json({ message: 'Email này đã được sử dụng!' });
-        }
-
-        const hashedPassword = password; // Lưu ý: nên mã hóa password thực tế
-
-        // Xác định role khi đăng ký dựa trên email
-        const userRole = determineUserRole(email, 'student');
-
-        await db.execute('INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)',
-            [name, email, hashedPassword, userRole]  // Dùng role đã xác định
-        );
+        // Tạo mã 6 số ngẫu nhiên
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        
+        // Lưu vào store với thời hạn 5 phút
+        otpStore[email] = { 
+            code: otp, 
+            expires: Date.now() + 5 * 60 * 1000 
+        };
 
         const mailOptions = {
-            from: '"HHT Academy" <no-reply@hht.edu.vn>',
+            from: '"Giặt Nhanh MMC 24H" <nguyencongtuan2612@gmail.com>',
             to: email,
-            subject: userRole === 'teacher'
-                ? 'Chào mừng Giảng viên đến với HHT Academy!'
-                : 'Chào mừng bạn đến với HHT Academy!',
+            subject: 'Mã xác thực OTP đăng ký MMC 24H',
             html: `
-                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
-                    <h2 style="color: #000000ff; text-align: center;">Xin chào ${name}!</h2>
-                    <p>Cảm ơn bạn đã đăng ký tài khoản tại <strong>HHT Academy</strong>.</p>
-                    <p>Tài khoản của bạn đã được tạo thành công với:</p>
-                    <ul>
-                        <li>Email: <strong>${email}</strong></li>
-                        <li>Vai trò: <strong>${userRole === 'teacher' ? 'Giảng viên' : userRole === 'admin' ? 'Quản trị viên' : 'Học viên'}</strong></li>
-                    </ul>
-                    ${userRole === 'teacher'
-                    ? '<p>Bạn có thể truy cập trang dành cho giảng viên để quản lý khóa học và sử dụng các công cụ AI hỗ trợ giảng dạy.</p>'
-                    : '<p>Bây giờ bạn có thể đăng nhập và bắt đầu hành trình học tập ngay hôm nay.</p>'
-                }
-                    <div style="text-align: center; margin-top: 30px;">
-                        <a href="http://127.0.0.1:5500/frontend/login.html" style="background-color: #000000ff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Đăng Nhập Ngay</a>
+                <div style="font-family: Arial, sans-serif; border: 1px solid #e2e8f0; padding: 25px; border-radius: 15px; max-width: 500px; margin: auto;">
+                    <h2 style="color: #2563eb; text-align: center;">Xác thực tài khoản MMC 24H</h2>
+                    <p>Chào bạn, mã OTP để đăng ký tài khoản của bạn là:</p>
+                    <div style="text-align: center; margin: 30px 0;">
+                        <span style="font-size: 32px; font-weight: bold; color: #2563eb; background: #f0f7ff; padding: 10px 20px; border-radius: 8px; border: 1px solid #dbeafe; letter-spacing: 5px;">${otp}</span>
                     </div>
+                    <p style="font-size: 13px; color: #64748b;">Mã có hiệu lực trong 5 phút. Vui lòng không cung cấp mã này cho bất kỳ ai.</p>
                 </div>
             `
         };
 
-        try {
-            await transporter.sendMail(mailOptions);
-        } catch (emailError) {
-            console.error("Lỗi gửi email:", emailError);
-        }
-
-        res.status(201).json({
-            message: 'Đăng ký thành công! Vui lòng kiểm tra email của bạn.',
-            role: userRole
-        });
-
+        await transporter.sendMail(mailOptions);
+        res.json({ success: true, message: 'Mã OTP đã được gửi về Gmail của bạn.' });
     } catch (error) {
-        console.error("Lỗi đăng ký:", error);
-        res.status(500).json({ message: 'Lỗi server khi xử lý đăng ký.' });
+        console.error("Lỗi gửi mail:", error);
+        res.status(500).json({ success: false, message: 'Không thể gửi email: ' + error.message });
     }
 };
 
-exports.login = async (req, res) => {
+/**
+ * ĐĂNG KÝ TÀI KHOẢN
+ */
+const register = async (req, res) => {
     try {
-        const { email, password } = req.body;
-        if (!email || !password) {
-            return res.status(400).json({ message: 'Vui lòng nhập email và mật khẩu!' });
+        const { name, email, phone, password, otp, role } = req.body;
+
+        // 1. Kiểm tra dữ liệu đầu vào
+        if (!name || !email || !phone || !password || !otp) {
+            return res.status(400).json({ success: false, message: 'Vui lòng điền đầy đủ các thông tin bắt buộc!' });
         }
 
-        const [users] = await db.execute('SELECT * FROM users WHERE email = ?', [email]);
+        // 2. Xác thực OTP
+        const cachedOTP = otpStore[email];
+        if (!cachedOTP || cachedOTP.code !== otp) {
+            return res.status(400).json({ success: false, message: 'Mã OTP không chính xác.' });
+        }
+        if (Date.now() > cachedOTP.expires) {
+            return res.status(400).json({ success: false, message: 'Mã OTP đã hết hạn.' });
+        }
+
+        // 3. Kiểm tra trùng lặp Email hoặc SĐT trong bảng nguoi_dung
+        const [existingUser] = await db.query(
+            'SELECT * FROM nguoi_dung WHERE email = ? OR so_dien_thoai = ?', 
+            [email, phone]
+        );
+        if (existingUser.length > 0) {
+            return res.status(400).json({ success: false, message: 'Email hoặc Số điện thoại đã được sử dụng.' });
+        }
+
+        // 4. Mã hóa mật khẩu bảo mật
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        // 5. Lưu vào bảng nguoi_dung (Khớp 100% với database.sql của Tuấn)
+        const [result] = await db.query(
+            'INSERT INTO nguoi_dung (ho_ten, email, so_dien_thoai, mat_khau_ma_hoa, vai_tro) VALUES (?, ?, ?, ?, ?)',
+            [name, email, phone, hashedPassword, role || 'khach_hang']
+        );
+
+        const newUserId = result.insertId;
+
+        // 6. Khởi tạo ví điện tử cho người dùng mới
+        // Lưu ý: Đảm bảo bảng vi_dien_tu có cột ma_nguoi_dung và so_du_hien_tai
+        await db.query(
+            'INSERT INTO vi_dien_tu (ma_nguoi_dung, so_du_hien_tai) VALUES (?, 0)', 
+            [newUserId]
+        );
+
+        // Xóa OTP khỏi bộ nhớ sau khi dùng xong
+        delete otpStore[email];
+
+        res.status(201).json({ success: true, message: 'Đăng ký thành công! Chào mừng bạn đến với MMC 24H.' });
+        
+    } catch (error) {
+        // Log lỗi chi tiết ra console để debug khi làm backend
+        console.error("CRITICAL ERROR DURING REGISTER:", error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Lỗi server khi xử lý đăng ký.',
+            error: error.sqlMessage || error.message 
+        });
+    }
+};
+
+/**
+ * ĐĂNG NHẬP
+ */
+const login = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        if (!email || !password) {
+            return res.status(400).json({ success: false, message: 'Vui lòng nhập đầy đủ email và mật khẩu!' });
+        }
+
+        const [users] = await db.query('SELECT * FROM nguoi_dung WHERE email = ?', [email]);
+        
         if (users.length === 0) {
-            return res.status(401).json({ message: 'Email hoặc mật khẩu không đúng!' });
+            return res.status(401).json({ success: false, message: 'Email hoặc mật khẩu không chính xác.' });
         }
 
         const user = users[0];
-        let isMatch = false;
 
-        // So sánh mật khẩu (không mã hóa)
-        if (user.password === password) {
-            isMatch = true;
-        }
-
+        // Kiểm tra mật khẩu đã hash
+        const isMatch = await bcrypt.compare(password, user.mat_khau_ma_hoa);
         if (!isMatch) {
-            return res.status(401).json({ message: 'Email hoặc mật khẩu không đúng!' });
+            return res.status(401).json({ success: false, message: 'Email hoặc mật khẩu không chính xác.' });
         }
 
-        // Xác định role dựa trên email (ưu tiên cao hơn role trong database)
-        const determinedRole = determineUserRole(email, user.role);
-
-        // Nếu role khác với database, cập nhật lại database
-        if (determinedRole !== user.role) {
-            await db.execute('UPDATE users SET role = ? WHERE id = ?', [determinedRole, user.id]);
-            user.role = determinedRole; // Cập nhật role cho response
-        }
-
+        // Tạo JWT Token
         const token = jwt.sign(
-            {
-                id: user.id,
-                role: user.role,
-                email: user.email
-            },
-            JWT_SECRET,
+            { ma_nguoi_dung: user.ma_nguoi_dung, vai_tro: user.vai_tro }, 
+            JWT_SECRET, 
             { expiresIn: '24h' }
         );
 
         res.status(200).json({
+            success: true,
             message: 'Đăng nhập thành công!',
-            token: token,
-            user: {
-                id: user.id,
-                name: user.name,
-                email: user.email,
-                role: user.role,
-                avatar: user.avatar
+            token: `Bearer ${token}`,
+            user: { 
+                id: user.ma_nguoi_dung, 
+                name: user.ho_ten, 
+                email: user.email, 
+                role: user.vai_tro 
             }
         });
-
     } catch (error) {
-        console.error("Lỗi đăng nhập:", error);
-        res.status(500).json({ message: 'Lỗi server khi xử lý đăng nhập.' });
+        console.error("LOGIN ERROR:", error);
+        res.status(500).json({ success: false, message: 'Lỗi server khi đăng nhập.' });
     }
 };
 
-exports.getMe = async (req, res) => {
+/**
+ * LẤY THÔNG TIN CÁ NHÂN (Dùng cho Dashboard)
+ */
+const getMe = async (req, res) => {
     try {
-        const userId = req.user.id;
-        const [users] = await db.execute('SELECT id, name, email, role, avatar, created_at FROM users WHERE id = ?', [userId]);
-
-        if (users.length === 0) {
-            return res.status(404).json({ message: 'Không tìm thấy người dùng.' });
-        }
-
-        const user = users[0];
-
-        // Xác định lại role khi lấy thông tin user (để đảm bảo nhất quán)
-        const determinedRole = determineUserRole(user.email, user.role);
-
-        // Trả về role đã xác định
-        res.json({
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            role: determinedRole,
-            avatar: user.avatar,
-            created_at: user.created_at
-        });
+        const [users] = await db.query(
+            'SELECT ma_nguoi_dung as id, ho_ten as name, email, so_dien_thoai as phone, vai_tro as role, la_thanh_vien_premium FROM nguoi_dung WHERE ma_nguoi_dung = ?', 
+            [req.user.ma_nguoi_dung]
+        );
+        
+        if (users.length === 0) return res.status(404).json({ success: false, message: 'Không tìm thấy người dùng.' });
+        
+        res.json({ success: true, data: users[0] });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Lỗi server.' });
+        res.status(500).json({ success: false, message: 'Lỗi server.' });
     }
 };
 
-// Hàm helper để debug/troubleshoot
-exports.debugRoleAssignment = (req, res) => {
-    const { email } = req.query;
-
-    if (!email) {
-        return res.status(400).json({ message: 'Vui lòng cung cấp email' });
-    }
-
-    const role = determineUserRole(email, 'student');
-
-    res.json({
-        email: email,
-        determined_role: role,
-        patterns_matched: {
-            teacher: determineUserRole(email, 'student') === 'teacher',
-            admin: determineUserRole(email, 'student') === 'admin',
-            student: determineUserRole(email, 'student') === 'student'
-        }
-    });
+// Xuất các hàm ra để router sử dụng
+module.exports = {
+    sendOTP,
+    register,
+    login,
+    getMe
 };
